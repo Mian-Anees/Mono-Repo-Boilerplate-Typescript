@@ -17,7 +17,7 @@ export const databaseProviders =
         'headshot' as string,
         {
           dialect: 'postgres'as Dialect,
-          host: 'database-1.ctrw9mpachwj.us-east-2.rds.amazonaws.com' as string,
+          host: 'localhost' as string,
           port:5432,
         }
       );
