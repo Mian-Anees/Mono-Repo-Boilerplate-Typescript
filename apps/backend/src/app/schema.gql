@@ -1,0 +1,56 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CategoriesTypes {
+  id: Float
+  image: String
+  name: String
+}
+
+type DevicesTypes {
+  id: Float
+  name: String
+}
+
+type ManufacturersTypes {
+  id: Float
+  name: String
+}
+
+type Mutation {
+  createCategory(id: Float, image: String!, name: String!): CategoriesTypes!
+  createDevices(id: Float, name: String!): DevicesTypes!
+  createManufacturer(id: Float, name: String!): ManufacturersTypes!
+  createPost(category_id: Float, device_condition: Float, device_id: Float, device_type: String, id: Float, images: [String!], manufacturer_id: Float, price: Float): PostsTypes!
+  createUser(id: Float, image: String, password: String, role: String, token: String, user_name: String): UsersTypes!
+}
+
+type PostsTypes {
+  category_id: Float
+  device_condition: Float
+  device_id: Float
+  device_type: String
+  id: Float
+  images: [String!]
+  manufacturer_id: Float
+  price: Float
+}
+
+type Query {
+  FindAllCategory(limit: Float, skip: Float): [CategoriesTypes!]!
+  FindAllDevices(limit: Float, skip: Float): [DevicesTypes!]!
+  FindAllManufacturer(limit: Float, skip: Float): [ManufacturersTypes!]!
+  FindAllPosts(limit: Float, skip: Float): [PostsTypes!]!
+  FindAllUsers(limit: Float, skip: Float): [UsersTypes!]!
+  sayHello: String!
+}
+
+type UsersTypes {
+  id: Float
+  image: String
+  password: String
+  role: String
+  token: String
+  user_name: String
+}

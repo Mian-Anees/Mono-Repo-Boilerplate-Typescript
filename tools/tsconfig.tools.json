@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    //   "name": "@nestjs/graphql/plugin",
+    //   "options": {
+    //     "typeFileNameSuffix": [".input.ts", ".model.ts"]  
+    // },
+    "outDir": "../dist/out-tsc/tools",
+    "rootDir": ".",
+    "module": "commonjs",
+    "target": "es5",
+    "types": ["node"],
+    "importHelpers": false
+  },
+  "include": ["**/*.ts"]
+}

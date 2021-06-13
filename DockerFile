@@ -1,0 +1,62 @@
+  
+ARG NODE_VERSION=14.15.1
+
+FROM  node:${NODE_VERSION}-alpine as npm_scripts
+RUN apk add coreutils
+WORKDIR /src
+COPY . .
+
+# -------------------- Copy all package.json and yarn.lock ------------------- #
+
+RUN mkdir /out \
+  && find . -name "package.json" -o -name "yarn.lock"   | \
+    xargs cp -v --parents -t /out
+
+# ------------- Copy all json and js files in the root directory ------------- #
+
+RUN mkdir /workspaceRoot \
+  && find . -maxdepth 1  -name "*.json" -o -name "*.js"   | \
+    xargs cp -v --parents -t /workspaceRoot
+
+FROM node:${NODE_VERSION}-alpine AS install
+RUN apk add coreutils git python python3 make g++
+WORKDIR /src
+RUN yarn set version berry
+COPY --from=npm_scripts /out .
+RUN yarn plugin import typescript
+RUN yarn plugin import workspace-tools
+COPY .yarnrc.yml .yarnrc.yml
+RUN yarn install --inline-builds
+RUN cp -R node_modules /tmp/production_modules
+
+# ----------------------------- Build Backend App ---------------------------- #
+
+FROM install AS build
+WORKDIR /src
+COPY --from=npm_scripts /workspaceRoot .
+
+FROM build as build-backend
+WORKDIR /src
+#COPY --from=build-common-backend  /tmp/common-backend ./node_modules/common-backend
+COPY apps/backend apps/backend
+# COPY --from=backend-build-userlib  /tmp/userlib ./node_modules/userlib
+RUN yarn nx build backend
+RUN cp -R apps/backend/dist /tmp/backend
+# ---------------------------------------------------------------------------- #
+#                                  Run Backend                                 #
+# ---------------------------------------------------------------------------- #
+
+FROM node:${NODE_VERSION}-alpine as backend
+RUN  apk add --update --no-cache \
+    ca-certificates \
+    bash
+WORKDIR /src
+COPY --from=install /tmp/production_modules node_modules
+COPY --from=build-backend  /tmp/backend dist/apps/backend
+#COPY --from=build-common-backend  /tmp/common-backend node_modules/common-backend
+# COPY --from=backend-build-userlib  /tmp/userlib node_modules/userlib
+#COPY apps/backend/src/**/*.graphql apps/backend/src/
+#COPY apps/backend/src/database/migrations apps/backend/src/database/migrations
+
+EXPOSE 3005
+CMD ["node", "dist/apps/backend/main.js"]
